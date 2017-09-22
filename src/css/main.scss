@@ -1,0 +1,41 @@
+@import "normalize"; // TODO: Нормализуем стили
+@import "partials/variables"; // TODO: Подключаем переменные
+@import "partials/grid"; // TODO: Подключаем primegrid
+
+body {
+  font-family: $main-font;
+}
+h1 {
+  font-size: $font-size-h1;
+  font-weight: inherit;
+}
+h2 {
+  font-size: $font-size-h2;
+  font-weight: inherit;
+}
+p {
+  font-size: $font-size-base;
+  color: $main-text-color;
+  line-height: $line-height-base;
+}
+
+.our-mission {
+  background-color: $gray-background;
+  padding: 30px;
+  .mission-title {
+    color: $red-text-color;
+    margin-top: 0;
+  }
+  .mission-description {
+    margin-bottom: 0;
+  }
+}
+
+.year-history {
+  border: 2px solid $light-blue-background;
+  padding: 30px;
+  .historu-title {
+    margin-top: 0;
+    margin-bottom: 30px;
+  }
+}

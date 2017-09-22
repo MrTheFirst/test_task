@@ -1,8 +1,8 @@
 {
-  "name": "domostroy",
+  "name": "AIC.Robotics",
   "version": "1.0.0",
   "description": "",
-  "author": "Resolve",
+  "author": "MrTheFirst",
   "license": "ISC",
   "scripts": {
     "start": "buildLight"
@@ -22,6 +22,7 @@
     "gulp-cache": "^0.4.6",
     "gulp-imagemin": "^3.1.1",
     "gulp-minify-css": "*",
+    "gulp-rev-append": "^0.1.8",
     "gulp-rigger": "^0.5.8",
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.6.0",
@@ -34,6 +35,6 @@
   },
   "browserslist": [
     "> 1%",
-    "last 6 versions"
+    "last 4 versions"
   ]
 }

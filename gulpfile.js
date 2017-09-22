@@ -4,6 +4,7 @@ var gulp             = require('gulp'),
     postcss          = require('gulp-postcss'),
     sass             = require('gulp-sass'),
     rigger           = require('gulp-rigger'),
+    rev              = require('gulp-rev-append'),
     watch            = require('gulp-watch'),
     autoprefixer     = require('autoprefixer'),
     normalize        = require('node-normalize-scss'),
@@ -13,32 +14,13 @@ var gulp             = require('gulp'),
     browserSync      = require('browser-sync'),
     del              = require('del'),
     cache            = require('gulp-cache'),
-    //sortingConfig = require('../posrcss-sorting.config.json'),
-    // clearSvgProp     = require('remove-svg-properties').stream,
-    // svgSprite        = require('gulp-svg-sprite'),
-    // svgSpriteConfig  = {
-    //     mode: {
-    //         symbol: { // symbol mode to build the SVG
-    //             render: {
-    //                 css: {// CSS output option for icon sizing
-    //                     dest: '../css/icons-sprite.css'
-    //                 },
-    //                 scss: false // SCSS output option for icon sizing
-    //             },
-    //             title: '%f icon',
-    //             id: '%f',
-    //             prefix: '.ds-icon-%s', // BEM-style prefix if styles rendered
-    //             sprite: 'icons-sprite.svg', //generated sprite name
-    //             example: {
-    //                 dest: '../sprites.html'
-    //             }, // Build a sample page, please!
-    //             dest: '../images/'
-    //         }
-    //     }
-    // },
-    //svgFragments = require('postcss-svg-fragments'),
+    imagemin         = require('gulp-imagemin'),
+    cheerio          = require('gulp-cheerio'),
+    replace          = require('gulp-replace'),
+    svgSprite        = require('gulp-svg-sprite'),
+    svgmin           = require('gulp-svgmin'),
 
-    imagemin = require('gulp-imagemin'),
+    // TODO: Конфигурация минифицирования изображений
     imageminConfig = {
         options: {
             optimizationLevel: 3,
@@ -46,15 +28,14 @@ var gulp             = require('gulp'),
             interlaced: true,
             removeViewBox:false,
             removeDimensions: false,
-            removeComments:true,
+            removeComments:false,
             removeUselessStrokeAndFill:false,
-            cleanupIDs:true
+            cleanupIDs:false
         }
     },
 
     path = {
-
-        // Пути для готовых после сборки файлов
+        // TODO: Пути для сборки
         build: {
             html: 'build/',
             js: 'build/js/',
@@ -63,22 +44,26 @@ var gulp             = require('gulp'),
             fonts: 'build/fonts/'
         },
 
-        // Пути исходников
+        // TODO: Пути исходников
         src: {
             html: 'src/*.html',
-            js: 'src/js/main.js',
-            style: 'src/css/template_styles.scss',
+            js: 'src/js/*.js',
+            styles: 'src/css/*.*',
             img: 'src/images/',
-            fonts: 'src/fonts/**/*.*'
+            fonts: 'src/fonts/**/*.*',
+            sprite: 'src/images/sprite_icons/*.svg'
         },
 
+        // TODO: Пути для watcher
         watch: {
             html: 'src/**/*.html',
             style: 'src/css/**/*.+(scss|sass)',
+            img: 'src/images/',
             js: 'src/js/**/*.js'
         }
     },
 
+    // TODO: Конфигурация сервера
     srverConfig = {
         server: {
             baseDir: './build'
@@ -89,38 +74,75 @@ var gulp             = require('gulp'),
         logPrefix: "Resolve"
     };
 
-// TODO [danil]: Запуск локального сервера
+// TODO: Cборка svg спрайтов
+gulp.task('svg.sprite', function() {
+    return gulp.src(path.src.sprite)
+        .pipe(svgmin({
+            js2svg: {
+                pretty: true
+            }
+        }))
+        .pipe(cheerio({
+            run: function($) {
+                $('[fill]').removeAttr('fill');
+                $('[stroke]').removeAttr('stroke');
+                $('[style]').removeAttr('style');
+            },
+            parserOptions: { xmlMode: true }
+        }))
+        .pipe(replace('&gt;', '>'))
+        .pipe(svgSprite({
+            dest: '.',
+            mode: {
+                symbol: {
+                    dest: path.src.img,
+                    sprite: 'sprite.svg',
+                    render: {
+                        scss: {
+                            dest: 'src/css/partials/_sprite.scss',
+                            template: "src/css/partials/_template.scss"
+                        }
+                    }
+                }
+            }
+        }))
+        .pipe(gulp.dest(''));
+});
+
+//  TODO: Запуск локального сервера
 gulp.task('webserver', function () {
     browserSync(srverConfig);
 });
 
-// TODO [danil]: Очистка папок
+// TODO: Очистка папок
 gulp.task('clean', function() {
     return del.sync('build'); // Удаляем папку build перед сборкой
 });
 
-// TODO: Собираем html
+// TODO: Собирка HTML
 gulp.task('html:build', function () {
     gulp.src(path.src.html) // Выберем файлы по нужному пути
+        .pipe(rev())
         .pipe(rigger()) // Прогоним через rigger
         .pipe(gulp.dest(path.build.html)) // Сохраним
         .pipe(browserSync.reload({stream:true}));
 });
 
-// TODO [danil]: Сборка JS
+// TODO: Сборка JS
 gulp.task('js:build', function() {
     gulp.src(path.src.js)
+        .pipe(rev())
         .pipe(rigger())
         .pipe(gulp.dest(path.build.js))
         .pipe(browserSync.reload({stream: true}));
 });
 
-// TODO [danil]: Сборка css
+// TODO: Сборка CSS
 gulp.task('style:build', function () {
     var processors = [
         autoprefixer({browsers: ['last 6 versions']})
     ];
-    return gulp.src(path.src.style)
+    return gulp.src(path.src.styles)
         .pipe(sourcemaps.init())
         .pipe(sass({includePaths: normalize.includePaths}))
         .pipe(postcss(processors))
@@ -131,20 +153,22 @@ gulp.task('style:build', function () {
 });
 
 
-// TODO [danil]: Сборка графики
+// TODO: Сборка графики
 gulp.task('images:build', function() {
     gulp.src(path.src.img + '**/*.*')
         .pipe(cache(imagemin(imageminConfig)))
         .pipe(gulp.dest(path.build.img))
+        .pipe(browserSync.reload({stream: true}));
 });
 
 // TODO: Сборка шрифтов
 gulp.task('fonts:build', function () {
-    gulp.src('src/fonts/**/*')
-        .pipe(gulp.dest('build/fonts'))
+    gulp.src(path.src.fonts)
+        .pipe(gulp.dest(path.build.fonts))
 });
 
-// TODO [danil]: Описание watcher
+
+// TODO: Задачи watcher
 gulp.task('watch', function(){
     watch([path.watch.html], function(event) {
         gulp.start('html:build');
@@ -154,6 +178,9 @@ gulp.task('watch', function(){
     });
     watch([path.watch.js], function(event) {
         gulp.start('js:build');
+    });
+    watch([path.watch.img], function(event) {
+        gulp.start('images:build');
     });
 });
 
@@ -167,31 +194,18 @@ gulp.task('buildFull', [
     'images:build'
 ]);
 
+// TODO: Легкая сборка
 gulp.task('buildLight', [
     'style:build',
     'js:build',
+    'images:build',
     'html:build'
 ]);
 
+//  TODO: Задача по умолчанию
 gulp.task('default', ['buildLight', 'webserver', 'watch']);
 
 
-// TODO [danil]: Билд спрайтов -
-/*
-gulp.task('sprites:build', function () {
-    return gulp.src(path.src.img + 'sprite-icons/*.svg')// исходники
-        .pipe(clearSvgProp.remove({
-            properties: [
-                clearSvgProp.PROPS_FILL,
-                clearSvgProp.PROPS_STROKE,
-                clearSvgProp.PROPS_FONT
-            ],
-            namespaces: ['i', 'sketch', 'inkscape']
-        }))
-        .pipe(imagemin(imageminConfig)) // сжимаем
-        .pipe(svgSprite(svgSpriteConfig)) // склеиваем
-        .pipe(gulp.dest(path.build.img)); // сохраняем
-}); */
 
 
 

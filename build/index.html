@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Главная</title>
+    <!-- TODO [danil]: подключаем head c общими тегами -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!--  TODO: Подключаем шрифты -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+    
+    <!-- TODO: Подключаем стили -->
+    <link href="css/main.css" rel="stylesheet">
+    
+    <!-- TODO [danil]: Enable SVG sprites for IE 10+ -->
+    <!--<script src="js/svg4everybody.min.js"></script>-->
+    
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-8">
+                    <div class="our-mission">
+                        <h1 class="mission-title">
+                            Наша миссия
+                        </h1>
+                        <p class="mission-description">
+                            ВЛБАНК (ОАО) перешёл на промышленную эксплуатацию автоматизированной банковской системы ЦФТ-Банк, современного масштабируемого решения, позволившего банку перестроить свой технологический цикл и расширить потенциальные возможности для развития.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="years-graph"></div>
+        <style>
+            #years-graph {
+                background: url("images/graph_bg.png") center center no-repeat;
+            }
+            #years-graph svg {
+                display: block;
+                margin: 0 auto;
+            }
+            #years-graph path.line {
+                fill: none;
+                stroke-width: 1;
+                /*stroke: #666;*/
+                stroke-dasharray: 3,3;
+            }
+            #years-graph circle {
+                fill: #49a2c7;
+                cursor: pointer;
+            }
+            line {
+                stroke: #000;
+                stroke-width: 1;
+            }
+            text {
+                font-family: Helvetica, sans-serif;
+                font-size: 11px;
+                text-anchor: middle;
+            }
+        </style>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="year-history">
+                        <h2 class="historu-title">
+                            Расширение возможностей
+                        </h2>
+                        <time class="history-date">
+                            24 августа 2009 г.
+                        </time>
+                        <p class="history-description">
+                            ВЛБАНК (ОАО) перешёл на промышленную эксплуатацию автоматизированной банковской системы ЦФТ-Банк, современного масштабируемого решения, позволившего банку перестроить свой  технологический цикл и расширить потенциальные возможности для развития.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+<!-- TODO: Подключаем скрипты -->
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/main.js"></script>
+
+
+</body>
+</html>
