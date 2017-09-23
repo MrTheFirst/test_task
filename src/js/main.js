@@ -12,7 +12,7 @@ function initBlackSea() {
         ports,
         intervals,
         boat,
-        boatSpeed = 0.4, // в узлах
+        boatSpeed = 0.33, // в узлах=)
         direction = -1,
         startPort = 0,
         atLength;
