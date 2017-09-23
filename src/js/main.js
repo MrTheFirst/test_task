@@ -2,202 +2,219 @@
 * Равномерная скорость
 * */
 
-var width = 1305,
-    height = 372,
-    intervals = [
-        {
-            id: 'line-0',
-            d: 'M372.35 277.1C337.35 265.95 224.57 247.8 162.66 280.38',
-        },
-        {
-            id: 'line-1',
-            d: 'M522.14 245.87C482.69 275.09 412.69 288.65 373.25 277.43',
-        },
-        {
-            id: 'line-2',
-            d: 'M656.48 155.68C634.56 154.19 537.12 235.25 522.86 245.04',
-        },
-        {
-            id: 'line-3',
-            d: 'M785.78 155.53C736.95 141.95 693.9 141.88 656.63 155.32',
-        },
-        {
-            id: 'line-4',
-            d: 'M896.8 176.32C876.11 181.16 797.7 156.16 785.95 155.68',
-        },
-        {
-            id: 'line-5',
-            d: 'M1011.9 117.98C973.18 156.77 934.88 176.2 897.01 176.27',
-        },
-        {
-            id: 'line-6',
-            d: 'M1111.63 29.95C1088.6 35.06 1040.62 73.15 1011.84 117.61',
-        }
-    ],
-    circles = [
-        {
-            x: '152.18',
-            y: '268.87',
-            index: '0'
-        },
-        {
-            x: '360.86',
-            y: '268.87',
-            index: '1'
-        },
-        {
-            x: '501.61',
-            y: '225.09',
-            index: '2'
-        },
-        {
-            x: '640.48',
-            y: '136.79',
-            index: '3'
-        },
-        {
-            x: '772.56',
-            y: '145.85',
-            index: '4'
-        },
-        {
-            x: '884.63',
-            y: '164.72',
-            index: '5'
-        },
-        {
-            x: '986.99',
-            y: '98.83',
-            index: '6'
-        },
-        {
-            x: '1098.97',
-            y: '16.79',
-            index: '7'
-        }
-    ],
+initBlackSea();
 
-    // TODO: создаем svg и задаем размеры
-    svg = d3.select('#years-graph').append('svg').attr({
-        width: width,
-        height: height
-    }),
+function initBlackSea() {
+    var width = 1305,
+        height = 372,
+        svg = d3.select('#years-trip').append('svg').attr({
+            'width': width,
+            'height': height
+        }),
+        g,
+        ports,
+        intervals,
+        boat,
+        boatSpeed = 0.4, // в узлах
+        direction = -1,
+        startPort = 0,
+        atLength;
 
+    svg.append("image")
+        .attr("xlink:href", '/images/graph_bg.png')
+        .attr("width", width)
+        .attr("height",height);
     g = svg.append('g');
 
-intervals.forEach(function (i) {
-    g.append('path')
-        .attr({
-            class: 'line',
-            id: i.id,
-            d: i.d
+    window.onload = function () {
+
+        // Загружаем карту
+        loadBlackSeaData('blacksea.json',
+            function (res) {
+                ports = res['ports'];
+                intervals = res['intervals'];
+
+                // Читаем текущего историю порта
+                showlogBook(ports[0]);
+
+                // Отмечаем порты на карте
+                markPorts(ports);
+
+                // Запускаем волны
+                generateWaves(intervals);
+
+                //Строим кораблик
+                createBoat('../images/boat.png');
+
+            }, function () {
+                alert('Ошибка при загрузке данных')
+            }
+        );
+
+    };
+
+    function loadBlackSeaData(filePath, success, error) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    if (success)
+                        success(JSON.parse(xhr.responseText));
+                } else {
+                    if (error)
+                        error(xhr);
+                }
+            }
+        };
+        xhr.open('GET', filePath, true);
+        xhr.send();
+    }
+
+    function generateWaves(data) {
+        data.forEach(function (i) {
+            g.append('path')
+                .attr({
+                    'class': 'wave',
+                    'id': i.id,
+                    'd': i.d
+                });
         });
-});
+    }
 
-circles.forEach(function (i) {
-    g.append('svg:circle')
-        .attr('cx', +i.x + 10)
-        .attr('cy', +i.y + 10)
-        .attr('r', 11)
-        .attr('index', i.index)
-        .on('click', function () {
-            transition(this);
+    function markPorts(data) {
+        data.forEach(function (i) {
+            // Маркер
+            var marker = g.append('g')
+                .attr({'data-index': i.index,
+                    'class': i.index == 0?'marker active':'marker'});
+
+            marker.append('circle')
+                .attr({
+                    'cx': +i.x + 10,
+                    'cy': +i.y + 10,
+                    'r': 11,
+                    'index': i.index})
+                .on('click', function () {
+                    swim(i.index);
+                });
+
+            // Лейбл
+            var label = marker.append('g')
+                .attr({'transform': 'translate(' + (+i.x - 25) + ', ' + (+i.y + 34) + ')'});
+            label.append('path')
+                .attr({'d': 'M6.539,0.000 L61.462,0.000 C65.073,0.000 68.000,3.053 68.000,6.819 L68.000,23.182 C68.000,26.948 65.073,30.000 61.462,30.000 L6.539,30.000 C2.927,30.000 0.000,26.948 0.000,23.182 L0.000,6.819 C0.000,3.053 2.927,0.000 6.539,0.000 Z'});
+            // Текс
+            label.append('text')
+                .text(i.name)
+                .attr({
+                    'class': 'text',
+                    'transform': 'translate(34, 22)'});
+
         });
-});
-
-// TODO: создаем лодочку
-pointer = g.append('g')
-    .attr('transform', 'translate(162, 270)');
-
-label = pointer.append('svg:image')
-    .attr({
-        'xlink:href': '../images/boat.png',
-        x: -30,
-        y: -30,
-        width: 63,
-        height: 41
-    });
-
-var direction = -1,
-    atLength,
-    startPoint = 0;
-
-function transition(e) {
-
-    // TODO: вперед
-    if (startPoint < e.getAttribute('index')) {
-        direction = -1;
-
-        pointer.transition()
-            .ease('linear')
-            .duration(1000)
-            .attrTween('transform', translateAlong(d3.select('#line-' + startPoint).node(), e.getAttribute('index')));
-        startPoint = +startPoint + 1;
     }
 
-    // TODO: Назад
-    if (startPoint > e.getAttribute('index')) {
-        direction = 1;
+    function createBoat(image) {
+        boat = g.append('g')
+            .attr('transform', 'translate(162, 270)');
 
-        pointer.transition()
-            .ease('linear')
-            .duration(1000)
-            .attrTween('transform', translateAlong(d3.select('#line-' + (+startPoint - 1)).node(), e.getAttribute('index')));
-        startPoint = +startPoint - 1;
+        boat.append('svg:image')
+            .attr({
+                'xlink:href': image,
+                x: -30,
+                y: -30,
+                width: 63,
+                height: 41
+            });
     }
 
-    if (startPoint != e.getAttribute('index')) {
-        setTimeout(function () {
-            transition(e)
-        }, 1000)
-    }
-}
+    function swim(index) {
+        var path,
+            curSpeed;
 
+        // Плыть вперед
+        if (startPort < index) {
+            direction = -1;
+            path = d3.select('#interval-' + startPort).node();
+            curSpeed = calcSpeed(path);
 
-function translateAlong(path, i) {
-    var l = path.getTotalLength();
+            boat.transition()
+                .ease('linear')
+                .duration(curSpeed)
+                .attrTween('transform', translateAlong(path));
 
-    return function (d, i, a) {
-        return function (t) {
-            atLength = direction === 1 ? (t * l) : (l - (t * l));
+            setTimeout(function () {
+                showlogBook(ports[startPort]);
+            }, curSpeed);
 
-            var p1 = path.getPointAtLength(atLength);
-            // TODO: fix rotate
-            // p2 = path.getPointAtLength((atLength)+direction),
-            // angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-            // return 'translate(' + p1.x + ',' + p1.y + ') rotate(' + angle + ')';
-            
-            return 'translate(' + p1.x + ',' + p1.y + ')';
+            startPort = +startPort + 1;
         }
+
+        // Плыть назад
+        else if (startPort > index) {
+            direction = 1;
+            path = d3.select('#interval-' + (+startPort - 1)).node();
+            curSpeed = calcSpeed(path);
+
+            boat.transition()
+                .ease('linear')
+                .duration(curSpeed)
+                .attrTween('transform', translateAlong(path));
+
+            setTimeout(function () {
+                showlogBook(ports[startPort]);
+            }, curSpeed);
+
+            startPort = +startPort - 1;
+        }
+
+        // Сбросить якорь после долгого плаванья
+        if (startPort != index) {
+            setTimeout(function () {
+                swim(index);
+            }, curSpeed);
+        }
+
     }
-}
 
+    function calcSpeed(interval) {
+        return interval.getTotalLength() / boatSpeed;
+    }
 
+    function translateAlong(path) {
+        var l = path.getTotalLength();
 
+        return function (d, i, a) {
+            return function (t) {
+                atLength = direction === 1 ? (t * l) : (l - (t * l));
 
-function loadJSON(filePath, success, error)
-{
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function()
-    {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                if (success)
-                    success(JSON.parse(xhr.responseText));
-            } else {
-                if (error)
-                    error(xhr);
+                var p1 = path.getPointAtLength(atLength);
+
+                // TODO: fix rotate
+                // p2 = path.getPointAtLength((atLength)+direction),
+                // angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+                // return 'translate(' + p1.x + ',' + p1.y + ') rotate(' + angle + ')';
+
+                return 'translate(' + p1.x + ',' + p1.y + ')';
             }
         }
-    };
-    xhr.open('GET', filePath, true);
-    xhr.send();
-}
-
-loadJSON('blacksea.json',
-    function (res) {
-    console.log('res', res);
-    }, function () {
-        alert('Ошибка при загрузке данных')
     }
-);
+
+    function showlogBook(port) {
+        var logBook = document.getElementById('logbook');
+
+        lightStartPort(port.index);
+
+        logBook.querySelector('.history-title').innerText = port.title;
+        logBook.querySelector('.history-date').innerText = port.date + ' ' + port.name + 'г.';
+        logBook.querySelector('.history-description').innerText = port.description;
+    }
+
+    function lightStartPort(current) {
+        document.querySelectorAll('.marker').forEach(function (i) {
+            i.classList.remove('active');
+            if (current == i.getAttribute('data-index')) {
+                i.classList.add('active')
+            }
+        });
+    }
+}

@@ -1,15 +1,12 @@
-/*== Prime Grid == */
-
 // Width of one column
 $col-width: 100% / 12;
 
 
-/*== Extra large devices and lower (default) == */
 .container {
   max-width: $container-max-width;
   width: $container-width;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 ($col-gutter / 2);
 }
 
 .row {
@@ -19,8 +16,7 @@ $col-width: 100% / 12;
   max-width: $row-max-width;
   width: $row-width;
   box-sizing: border-box;
-  margin: 0 -15px;
-  //padding: 0 ($col-gutter / 2);
+  margin: 0 (-$col-gutter / 2);
 
   &.no-gutter {
     padding: 0;

@@ -24,41 +24,13 @@
             </div>
         </div>
 
-        <div id="years-graph"></div>
-        <style>
-            #years-graph {
-                background: url("images/graph_bg.png") center center no-repeat;
-            }
-            #years-graph svg {
-                display: block;
-                margin: 0 auto;
-            }
-            #years-graph path.line {
-                fill: none;
-                stroke-width: 1;
-                /*stroke: #666;*/
-                stroke-dasharray: 3,3;
-            }
-            #years-graph circle {
-                fill: #49a2c7;
-                cursor: pointer;
-            }
-            line {
-                stroke: #000;
-                stroke-width: 1;
-            }
-            text {
-                font-family: Helvetica, sans-serif;
-                font-size: 11px;
-                text-anchor: middle;
-            }
-        </style>
+        <div class="history-graph" id="years-trip"></div>
 
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <div class="year-history">
-                        <h2 class="historu-title">
+                    <div id="logbook" class="year-history">
+                        <h2 class="history-title">
                             Расширение возможностей
                         </h2>
                         <time class="history-date">
@@ -80,3 +52,4 @@
 
 </body>
 </html>
+

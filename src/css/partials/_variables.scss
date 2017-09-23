@@ -8,11 +8,14 @@ $red-background: #eb4f47;
 $blue-background: #49a2c7;
 $light-blue-background: lighten(desaturate(adjust-hue($blue-background, 1), 1.83), 37.84);
 
+$dark: #000;
+$light: #fff;
+
 // TODO: Gutter between two columns
-$col-gutter: 30px;
+$col-gutter: 22px;
 
 // TODO: Container
-$container-max-width: 980px;
+$container-max-width: 960px;
 $container-width: 100%;
 
 // TODO: Row

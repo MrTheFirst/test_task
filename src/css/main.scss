@@ -31,10 +31,48 @@ p {
   }
 }
 
+
+.history-graph {
+  margin-top: -20px;
+  margin-bottom: 10px;
+  svg {
+    display: block;
+    margin: 0 auto;
+    path.wave {
+      fill: none;
+      stroke-width: 1;
+    }
+    .marker {
+      circle {
+        fill: $blue-background;
+        cursor: pointer;
+      }
+      path {
+        fill: none;
+      }
+      text {
+        fill: $dark;
+        font-family: 'PT Sans', sans-serif;
+        font-size: 22px;
+        text-anchor: middle;
+      }
+      &.active {
+        path {
+          fill: $red-background;
+        }
+        text {
+          fill: $light;
+        }
+      }
+    }
+
+  }
+}
+
 .year-history {
   border: 2px solid $light-blue-background;
   padding: 30px;
-  .historu-title {
+  .history-title {
     margin-top: 0;
     margin-bottom: 30px;
   }

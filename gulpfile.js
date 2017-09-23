@@ -40,8 +40,7 @@ var gulp             = require('gulp'),
             html: 'build/',
             js: 'build/js/',
             css: 'build/css/',
-            img: 'build/images/',
-            fonts: 'build/fonts/'
+            img: 'build/images/'
         },
 
         // TODO: Пути исходников
@@ -49,9 +48,7 @@ var gulp             = require('gulp'),
             html: 'src/*.html',
             js: 'src/js/*.js',
             styles: 'src/css/*.*',
-            img: 'src/images/',
-            fonts: 'src/fonts/**/*.*',
-            sprite: 'src/images/sprite_icons/*.svg'
+            img: 'src/images/'
         },
 
         // TODO: Пути для watcher
@@ -74,40 +71,6 @@ var gulp             = require('gulp'),
         logPrefix: "Resolve"
     };
 
-// TODO: Cборка svg спрайтов
-gulp.task('svg.sprite', function() {
-    return gulp.src(path.src.sprite)
-        .pipe(svgmin({
-            js2svg: {
-                pretty: true
-            }
-        }))
-        .pipe(cheerio({
-            run: function($) {
-                $('[fill]').removeAttr('fill');
-                $('[stroke]').removeAttr('stroke');
-                $('[style]').removeAttr('style');
-            },
-            parserOptions: { xmlMode: true }
-        }))
-        .pipe(replace('&gt;', '>'))
-        .pipe(svgSprite({
-            dest: '.',
-            mode: {
-                symbol: {
-                    dest: path.src.img,
-                    sprite: 'sprite.svg',
-                    render: {
-                        scss: {
-                            dest: 'src/css/partials/_sprite.scss',
-                            template: "src/css/partials/_template.scss"
-                        }
-                    }
-                }
-            }
-        }))
-        .pipe(gulp.dest(''));
-});
 
 //  TODO: Запуск локального сервера
 gulp.task('webserver', function () {
@@ -119,7 +82,7 @@ gulp.task('clean', function() {
     return del.sync('build'); // Удаляем папку build перед сборкой
 });
 
-// TODO: Собирка HTML
+// TODO: Сборка HTML
 gulp.task('html:build', function () {
     gulp.src(path.src.html) // Выберем файлы по нужному пути
         .pipe(rev())
@@ -152,7 +115,6 @@ gulp.task('style:build', function () {
         .pipe(browserSync.reload({stream: true}));
 });
 
-
 // TODO: Сборка графики
 gulp.task('images:build', function() {
     gulp.src(path.src.img + '**/*.*')
@@ -160,13 +122,6 @@ gulp.task('images:build', function() {
         .pipe(gulp.dest(path.build.img))
         .pipe(browserSync.reload({stream: true}));
 });
-
-// TODO: Сборка шрифтов
-gulp.task('fonts:build', function () {
-    gulp.src(path.src.fonts)
-        .pipe(gulp.dest(path.build.fonts))
-});
-
 
 // TODO: Задачи watcher
 gulp.task('watch', function(){
@@ -190,7 +145,6 @@ gulp.task('buildFull', [
     'html:build',
     'style:build',
     'js:build',
-    'fonts:build',
     'images:build'
 ]);
 
