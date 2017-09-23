@@ -47,3 +47,5 @@ fabric.properties
 /node_modules/
 /src/images/untitled.svg
 /src/images/graph.svg
+/build/images/untitled.svg
+/build/images/graph.svg
