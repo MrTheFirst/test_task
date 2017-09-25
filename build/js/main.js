@@ -12,9 +12,10 @@ function initBlackSea() {
         ports,
         intervals,
         boat,
-        boatSpeed = 0.33, // в узлах=)
+        boatSpeed = 0.43, // в узлах=)
         direction = -1,
         click = true,
+        lastClickIndex,
         startPort = 0,
         atLength;
 
@@ -176,9 +177,10 @@ function initBlackSea() {
         }
         else {
             setTimeout(function () {
-                click = true;
+                if (lastClickIndex) {
+                    swim(lastClickIndex)
+                }
             }, curSpeed);
-
         }
     }
 
@@ -225,6 +227,7 @@ function initBlackSea() {
     }
 
     function checkClick(index) {
+        lastClickIndex = index;
         if (click) {
             swim(index)
         }
