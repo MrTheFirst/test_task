@@ -14,6 +14,7 @@ function initBlackSea() {
         boat,
         boatSpeed = 0.33, // в узлах=)
         direction = -1,
+        click = true,
         startPort = 0,
         atLength;
 
@@ -92,7 +93,7 @@ function initBlackSea() {
                     'r': 11,
                     'index': i.index})
                 .on('click', function () {
-                    swim(i.index);
+                    checkClick(i.index);
                 });
 
             // Лейбл
@@ -100,7 +101,7 @@ function initBlackSea() {
                 .attr({'transform': 'translate(' + (+i.x - 25) + ', ' + (+i.y + 34) + ')'});
             label.append('path')
                 .attr({'d': 'M6.539,0.000 L61.462,0.000 C65.073,0.000 68.000,3.053 68.000,6.819 L68.000,23.182 C68.000,26.948 65.073,30.000 61.462,30.000 L6.539,30.000 C2.927,30.000 0.000,26.948 0.000,23.182 L0.000,6.819 C0.000,3.053 2.927,0.000 6.539,0.000 Z'});
-            // Текс
+            // Текст
             label.append('text')
                 .text(i.name)
                 .attr({
@@ -130,6 +131,7 @@ function initBlackSea() {
 
         // Плыть вперед
         if (startPort < index) {
+
             direction = -1;
             path = d3.select('#interval-' + startPort).node();
             curSpeed = calcSpeed(path);
@@ -148,6 +150,7 @@ function initBlackSea() {
 
         // Плыть назад
         else if (startPort > index) {
+
             direction = 1;
             path = d3.select('#interval-' + (+startPort - 1)).node();
             curSpeed = calcSpeed(path);
@@ -168,9 +171,15 @@ function initBlackSea() {
         if (startPort != index) {
             setTimeout(function () {
                 swim(index);
+                click = false;
             }, curSpeed);
         }
+        else {
+            setTimeout(function () {
+                click = true;
+            }, curSpeed);
 
+        }
     }
 
     function calcSpeed(interval) {
@@ -213,5 +222,11 @@ function initBlackSea() {
                 i.classList.add('active')
             }
         });
+    }
+
+    function checkClick(index) {
+        if (click) {
+            swim(index)
+        }
     }
 }
